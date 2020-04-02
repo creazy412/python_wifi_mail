@@ -7,6 +7,7 @@ from pywifi import const
 import time
 import tkinter.filedialog
 import tkinter.messagebox
+import email
 
 class MY_GUI():
 	def __init__(self,init_window_name):
@@ -20,6 +21,10 @@ class MY_GUI():
 		
 		#获取wifi密码
 		self.get_wifimm_value = StringVar()
+
+		# 自己的 WiFi 名称和密码
+		self.myself_wifi_name = ''
+		self.myself_wifi_password = ''
 		
 		self.wifi = pywifi.PyWiFi()  #抓取网卡接口
 		self.iface = self.wifi.interfaces()[0] #抓取第一个无线网卡
@@ -125,6 +130,19 @@ class MY_GUI():
 		self.get_wifissid = self.get_wifi_value.get().encode('utf-8').decode('raw_unicode_escape','strict')
 	   
 		self.pwdfilehander=open(self.getFilePath,"r",errors="ignore")
+
+		if not self.pwdfilehander:
+			"""
+			读取到文件的最后一行
+			1. 连上现有的自己的 WiFi
+			2. 邮件告知
+			"""
+			self.myself = self.connect(self.myself_wifi_password,
+				self.myself_wifi_name.encode('raw_unicode_escape','strict').decode('gb18030'))
+			if self.myself:
+				# 已读取结束，未破解成功
+				print('已读取结束，未破解成功')
+			
 		while True:
 				try:
 					self.pwdStr =self.pwdfilehander.readline()
