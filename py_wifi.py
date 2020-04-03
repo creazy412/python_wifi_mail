@@ -7,7 +7,7 @@ from pywifi import const
 import time
 import tkinter.filedialog
 import tkinter.messagebox
-import email
+import mail
 
 class MY_GUI():
 	def __init__(self,init_window_name):
