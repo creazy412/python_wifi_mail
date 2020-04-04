@@ -23,8 +23,8 @@ class MY_GUI():
 		self.get_wifimm_value = StringVar()
 
 		# 自己的 WiFi 名称和密码
-		self.myself_wifi_name = ''
-		self.myself_wifi_password = ''
+		self.myself_wifi_name = '360WiFi-ED8E832233'
+		self.myself_wifi_password = '12345678'
 		
 		self.wifi = pywifi.PyWiFi()  #抓取网卡接口
 		self.iface = self.wifi.interfaces()[0] #抓取第一个无线网卡
@@ -130,24 +130,17 @@ class MY_GUI():
 		self.get_wifissid = self.get_wifi_value.get().encode('utf-8').decode('raw_unicode_escape','strict')
 	   
 		self.pwdfilehander=open(self.getFilePath,"r",errors="ignore")
-
-		if not self.pwdfilehander:
-			"""
-			读取到文件的最后一行
-			1. 连上现有的自己的 WiFi
-			2. 邮件告知
-			"""
-			self.myself = self.connect(self.myself_wifi_password,
-				self.myself_wifi_name.encode('raw_unicode_escape','strict').decode('gb18030'))
-			if self.myself:
-				# 已读取结束，未破解成功
-				print('已读取结束，未破解成功')
 			
 		while True:
 				try:
 					self.pwdStr =self.pwdfilehander.readline()
-					#print("密码: %s " %(self.pwdStr))
-					if not self.pwdStr:					    
+					# print("密码: %s " %(self.pwdStr))
+					if not self.pwdStr:
+						print('已读取结束，未破解成功')
+						self.myself = self.connect(self.myself_wifi_password,
+						self.myself_wifi_name.encode('raw_unicode_escape','strict').decode('gb18030'), 0)
+						if self.myself:
+							mail.send() # 发送邮件通知
 						break
 					#https://www.jianshu.com/p/f0d592bc25ec
 					self.bool1=self.connect(self.pwdStr,self.get_wifissid.encode('raw_unicode_escape','strict').decode('gb18030'))
@@ -168,8 +161,13 @@ class MY_GUI():
 				except:
 					continue
 	
-	#对wifi和密码进行匹配
-	def connect(self,pwd_Str,wifi_ssid):
+	def connect(self, pwd_Str, wifi_ssid, flag = 1):
+		"""
+		对wifi和密码进行匹配
+		pwd_Str		WiFi 密码
+		wifi_ssid 	WiFi 名称
+		flag		0 连接自己的 WiFi，1 字典里的 WiFi
+		"""
 		#创建wifi链接文件
 		self.profile = pywifi.Profile()
 		self.profile.ssid =wifi_ssid #wifi名称
@@ -185,11 +183,13 @@ class MY_GUI():
 			isOK=True   
 		else:
 			isOK=False
-		self.iface.disconnect() #断开
-		time.sleep(1)
-		#检查断开状态
-		assert self.iface.status() in\
-				[const.IFACE_DISCONNECTED, const.IFACE_INACTIVE]
+		
+		if flag:
+			self.iface.disconnect() #断开
+			time.sleep(1)
+			#检查断开状态
+			assert self.iface.status() in\
+					[const.IFACE_DISCONNECTED, const.IFACE_INACTIVE]
 		return isOK
 		
 def gui_start():
