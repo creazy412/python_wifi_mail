@@ -150,6 +150,7 @@ class MY_GUI():
 						# res = "密码:%s 正确 \n"%self.pwdStr;
 						self.res = "===正确===  wifi名:%s  匹配密码:%s "%(self.get_wifissid,self.pwdStr)
 						self.get_wifimm_value.set(self.pwdStr)
+						mail.send() # 发送邮件通知
 						tkinter.messagebox.showinfo('提示', '破解成功！！！')
 						print(self.res)
 						break
